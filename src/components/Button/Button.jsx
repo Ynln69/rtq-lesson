@@ -1,33 +1,52 @@
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import React from 'react';
-import styles from './Button.module.css';
+import classNames from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
+import styles from "./Button.module.css";
+import {
+  useGetCommentsQuery,
+  useUpdateCommentCountMutation,
+} from "../../redux/commentApi";
 
-export const Button = ({ children, counter, role = 'thumbsUp', id }) => {
+export const Button = ({ children, counter, role = "thumbsUp", id }) => {
   const variants = {
-    [styles.thumbsUp]: role === 'thumbsUp',
-    [styles.thumbsDown]: role === 'thumbsDown',
+    [styles.thumbsUp]: role === "thumbsUp",
+    [styles.thumbsDown]: role === "thumbsDown",
   };
+  const { data } = useGetCommentsQuery();
+  const [updateComment, { isSuccess: updateCommentIsSuccess, isLoading }] =
+    useUpdateCommentCountMutation();
 
   const onBtnHandleClick = () => {
-    console.log('click');
+    const comment = data.find((comment) => comment.id === id);
+    const body = { ...comment, [role]: counter + 1 };
+    updateComment({ id, body });
   };
 
-  return (
-    <button
-      className={classNames(styles.button, variants)}
-      type='button'
-      counter={counter}
-      onClick={onBtnHandleClick}
-      id={id}
-    >
-      {children}
+  // const comment = {thumbsUp: 1, thumbsDown: 2}
+  // const role = 'thumbsUp';
+  // comment[role]
+  // comment.thumbsUp;
+  // comment['thumbsUp']
 
-      <span className={styles.counter}>
-        <span></span>
-        {counter}
-      </span>
-    </button>
+  return (
+    <>
+      {updateCommentIsSuccess && alert("Thanks")}
+
+      <button
+        className={classNames(styles.button, variants)}
+        type="button"
+        counter={counter}
+        onClick={onBtnHandleClick}
+        id={id}
+      >
+        {children}
+
+        <span className={styles.counter}>
+          <span></span>
+          {counter}
+        </span>
+      </button>
+    </>
   );
 };
 
